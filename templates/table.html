@@ -1,0 +1,46 @@
+<style>
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    #customers td, #customers th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    
+    #customers tr:nth-child(even){background-color: #f2f2f2;}
+    
+    #customers tr:hover {background-color: #ddd;}
+    
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #04AA6D;
+      color: white;
+    }
+</style>
+<table id="customers">
+    <tr>
+        <th>Data/Hora</th>
+        <th>Servidor Usado</th>
+        <th>Local Servidor</th>
+        <th>Ping</th>
+        <th>Jitter</th>
+        <th>Download</th>
+        <th>Upload</th>
+    </tr>
+    {{ range .}}
+        <tr>
+            <td>{{ .TestTime.Format "02/01/2006 15:04:05" }}</td>
+            <td>{{ .Server }}</td>
+            <td>{{ .ServerLoc }}</td>
+            <td>{{ .Ping }}</td>
+            <td>{{ .Jitter }}</td>
+            <td>{{ .DownloadSpeed }} Mbps</td>
+            <td>{{ .UploadSpeed }} Mbps</td>
+        </tr>
+    {{ end}}
+</table>
