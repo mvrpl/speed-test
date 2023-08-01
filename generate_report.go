@@ -74,7 +74,7 @@ type ReportData struct {
 	UploadSpeed   int
 }
 
-func GenTable() (string, string) {
+func GenTable(month time.Month, year int) (string, string) {
 	funcMap := template.FuncMap{
 		"humBytes": func(i int) string {
 			return humanize.IBytes(uint64(i * 100))
@@ -86,6 +86,9 @@ func GenTable() (string, string) {
 
 	data := GetData()
 	var reportData []ReportData
+
+	endDate := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	initialDate := endDate.AddDate(0, -1, 0)
 
 	for _, s := range data {
 		for _, t := range s.Result.Resultados {
@@ -100,6 +103,10 @@ func GenTable() (string, string) {
 			})
 		}
 	}
+
+	reportData = Filter(reportData, func(n ReportData) bool {
+		return n.TestTime.After(initialDate) && n.TestTime.Before(endDate)
+	})
 
 	var doc bytes.Buffer
 	err := tmpl.ExecuteTemplate(&doc, "table.html", reportData)
@@ -187,11 +194,10 @@ func GenReport(monthYear time.Time) {
 
 	config.Default.Secret = os.Getenv("API_SECRET")
 
-	table, sourceConn := GenTable()
-
 	caser := cases.Title(language.BrazilianPortuguese)
 	montYer := caser.String(monday.Format(monthYear, "January/2006", monday.LocalePtBR))
 
+	table, sourceConn := GenTable(monthYear.Month(), monthYear.Year())
 	ping, down, upl := GenMedian(monthYear.Month(), monthYear.Year())
 
 	html := fmt.Sprintf(`<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><html><center><h1>Relatório %s</h1></center><br>Origem: %s<br><br>%s<br><b>Média Ping: %dms | Média Download: %d Mbps | Média Upload: %d Mbps</b></html>`,

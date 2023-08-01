@@ -70,7 +70,8 @@ func main() {
 		},
 		&cli.TimestampFlag{
 			Name:   "datetime",
-			Layout: "2006-01-02T15:04:05",
+			Layout: "2006-01-02",
+			Value:  cli.NewTimestamp(time.Now()),
 		},
 	}
 
