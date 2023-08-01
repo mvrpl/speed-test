@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
 
-	wkhtmltopdf "github.com/SebastiaanKlippert/go-wkhtmltopdf"
+	"github.com/ConvertAPI/convertapi-go"
+	"github.com/ConvertAPI/convertapi-go/config"
+	"github.com/ConvertAPI/convertapi-go/param"
 	"github.com/dustin/go-humanize"
 	"github.com/syndtr/goleveldb/leveldb"
-	chart "github.com/wcharczuk/go-chart"
 )
 
 type Data struct {
@@ -165,15 +167,7 @@ func GenMedian() (int, int, int) {
 }
 
 func GenReport(montYer string) {
-	pdfg, err := wkhtmltopdf.NewPDFGenerator()
-	if err != nil {
-		panic(err)
-	}
-
-	pdfg.Dpi.Set(300)
-	pdfg.Orientation.Set(wkhtmltopdf.OrientationPortrait)
-
-	graph := chart.Chart{
+	/* graph := chart.Chart{
 		Series: []chart.Series{
 			chart.ContinuousSeries{
 				XValues: []float64{1.0, 2.0, 3.0, 4.0},
@@ -183,12 +177,14 @@ func GenReport(montYer string) {
 	}
 
 	buffer := bytes.NewBuffer([]byte{})
-	err = graph.Render(chart.PNG, buffer)
+	err := graph.Render(chart.PNG, buffer)
 	if err != nil {
 		panic(err)
 	}
 
-	// encodedText := base64.StdEncoding.EncodeToString(buffer.Bytes())
+	encodedText := base64.StdEncoding.EncodeToString(buffer.Bytes()) */
+
+	config.Default.Secret = os.Getenv("API_SECRET")
 
 	table, sourceConn := GenTable()
 
@@ -197,17 +193,19 @@ func GenReport(montYer string) {
 	html := fmt.Sprintf(`<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><html><center><h1>Relatório %s</h1></center><br>Origem: %s<br><br>%s<br><b>Média Ping: %dms | Média Download: %d Mbps | Média Upload: %d Mbps</b></html>`,
 		montYer, sourceConn, table, ping, down, upl)
 
-	pdfg.AddPage(wkhtmltopdf.NewPageReader(strings.NewReader(html)))
+	htmlFile, err := os.Create("report.html")
+	if err != nil {
+		panic(err)
+	}
 
-	err = pdfg.Create()
+	_, err = htmlFile.WriteString(html)
 	if err != nil {
 		panic(err)
 	}
 
 	fileName := strings.ToLower(strings.Replace(montYer, "/", "", -1))
 
-	err = pdfg.WriteFile(fmt.Sprintf("report_%s.pdf", fileName))
-	if err != nil {
-		panic(err)
-	}
+	convertapi.ConvDef("html", "pdf",
+		param.NewPath("File", "report.html", nil),
+	).ToPath(fmt.Sprintf("report_%s.pdf", fileName))
 }
