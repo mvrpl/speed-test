@@ -30,8 +30,6 @@ func GetData() []Data {
 	}
 	defer db.Close()
 
-	time.Local, _ = time.LoadLocation("America/Sao_Paulo")
-
 	iter := db.NewIterator(nil, nil)
 
 	var results []Data
