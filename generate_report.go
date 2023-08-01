@@ -15,7 +15,10 @@ import (
 	"github.com/ConvertAPI/convertapi-go/config"
 	"github.com/ConvertAPI/convertapi-go/param"
 	"github.com/dustin/go-humanize"
+	"github.com/goodsign/monday"
 	"github.com/syndtr/goleveldb/leveldb"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type Data struct {
@@ -164,7 +167,7 @@ func GenMedian(month time.Month, year int) (int, int, int) {
 	return pingMedian, downloadSpeedMedian, uploadSpeedMedian
 }
 
-func GenReport(montYer string) {
+func GenReport(monthYear time.Time) {
 	/* graph := chart.Chart{
 		Series: []chart.Series{
 			chart.ContinuousSeries{
@@ -186,12 +189,10 @@ func GenReport(montYer string) {
 
 	table, sourceConn := GenTable()
 
-	parseTime, err := time.Parse("January/2006", montYer)
-	if err != nil {
-		panic(err)
-	}
+	caser := cases.Title(language.BrazilianPortuguese)
+	montYer := caser.String(monday.Format(monthYear, "January/2006", monday.LocalePtBR))
 
-	ping, down, upl := GenMedian(parseTime.Month(), parseTime.Year())
+	ping, down, upl := GenMedian(monthYear.Month(), monthYear.Year())
 
 	html := fmt.Sprintf(`<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><html><center><h1>Relatório %s</h1></center><br>Origem: %s<br><br>%s<br><b>Média Ping: %dms | Média Download: %d Mbps | Média Upload: %d Mbps</b></html>`,
 		montYer, sourceConn, table, ping, down, upl)

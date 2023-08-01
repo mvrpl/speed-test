@@ -6,12 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/goodsign/monday"
 	"github.com/showwin/speedtest-go/speedtest"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func RunSpeedTest() {
@@ -85,8 +82,7 @@ func main() {
 		if c.Bool("test") {
 			RunSpeedTest()
 		} else if c.Bool("report") {
-			caser := cases.Title(language.BrazilianPortuguese)
-			GenReport(caser.String(monday.Format(*c.Timestamp("datetime"), "January/2006", monday.LocalePtBR)))
+			GenReport(*c.Timestamp("datetime"))
 		} else {
 			panic(errors.New("need one flag"))
 		}
