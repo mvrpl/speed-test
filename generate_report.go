@@ -109,7 +109,7 @@ func GenTable() (string, string) {
 	return doc.String(), sourceConn
 }
 
-func GenMedian() (int, int, int) {
+func GenMedian(month time.Month, year int) (int, int, int) {
 	data := GetData()
 	var reportData []ReportData
 
@@ -124,8 +124,8 @@ func GenMedian() (int, int, int) {
 		}
 	}
 
-	initialDate := time.Date(2023, 7, 1, 0, 0, 0, 0, time.Local)
-	endDate := time.Date(2023, 8, 1, 0, 0, 0, 0, time.Local)
+	endDate := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	initialDate := endDate.AddDate(0, -1, 0)
 
 	reportData = Filter(reportData, func(n ReportData) bool {
 		return n.TestTime.After(initialDate) && n.TestTime.Before(endDate)
@@ -186,7 +186,12 @@ func GenReport(montYer string) {
 
 	table, sourceConn := GenTable()
 
-	ping, down, upl := GenMedian()
+	parseTime, err := time.Parse("January/2006", montYer)
+	if err != nil {
+		panic(err)
+	}
+
+	ping, down, upl := GenMedian(parseTime.Month(), parseTime.Year())
 
 	html := fmt.Sprintf(`<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><html><center><h1>Relatório %s</h1></center><br>Origem: %s<br><br>%s<br><b>Média Ping: %dms | Média Download: %d Mbps | Média Upload: %d Mbps</b></html>`,
 		montYer, sourceConn, table, ping, down, upl)

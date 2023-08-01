@@ -71,6 +71,10 @@ func main() {
 			Name:  "report",
 			Value: false,
 		},
+		&cli.TimestampFlag{
+			Name:   "datetime",
+			Layout: "2006-01-02T15:04:05",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -82,7 +86,7 @@ func main() {
 			RunSpeedTest()
 		} else if c.Bool("report") {
 			caser := cases.Title(language.BrazilianPortuguese)
-			GenReport(caser.String(monday.Format(time.Now(), "January/2006", monday.LocalePtBR)))
+			GenReport(caser.String(monday.Format(*c.Timestamp("datetime"), "January/2006", monday.LocalePtBR)))
 		} else {
 			panic(errors.New("need one flag"))
 		}
