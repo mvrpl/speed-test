@@ -7,13 +7,9 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template"
 	"time"
 
-	"github.com/ConvertAPI/convertapi-go"
-	"github.com/ConvertAPI/convertapi-go/config"
-	"github.com/ConvertAPI/convertapi-go/param"
 	"github.com/dustin/go-humanize"
 	"github.com/goodsign/monday"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -192,8 +188,6 @@ func GenReport(monthYear time.Time) {
 
 	encodedText := base64.StdEncoding.EncodeToString(buffer.Bytes()) */
 
-	config.Default.Secret = os.Getenv("API_SECRET")
-
 	caser := cases.Title(language.BrazilianPortuguese)
 	montYer := caser.String(monday.Format(monthYear, "January/2006", monday.LocalePtBR))
 
@@ -212,10 +206,4 @@ func GenReport(monthYear time.Time) {
 	if err != nil {
 		panic(err)
 	}
-
-	fileName := strings.ToLower(strings.Replace(montYer, "/", "", -1))
-
-	convertapi.ConvDef("html", "pdf",
-		param.NewPath("File", "report.html", nil),
-	).ToPath(fmt.Sprintf("report_%s.pdf", fileName))
 }
