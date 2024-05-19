@@ -13,6 +13,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/goodsign/monday"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/xuri/excelize/v2"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -204,6 +205,20 @@ func GenReport(monthYear time.Time) {
 
 	_, err = htmlFile.WriteString(html)
 	if err != nil {
+		panic(err)
+	}
+
+	f := excelize.NewFile()
+	defer f.Close()
+
+	_, err = f.NewSheet(montYer)
+	if err != nil {
+		panic(err)
+	}
+
+	f.SetCellValue(montYer, "A2", "Hello world.")
+
+	if err := f.SaveAs("speed_tests.xlsx"); err != nil {
 		panic(err)
 	}
 }
