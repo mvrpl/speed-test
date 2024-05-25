@@ -28,6 +28,8 @@ builds:
     ignore:
       - goos: linux
         goarch: arm64
+      - goos: windows
+        goarch: arm64
     binary: speedtest
 
 archives:
