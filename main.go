@@ -3,13 +3,23 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
+	ptable "github.com/jedib0t/go-pretty/v6/table"
 	"github.com/showwin/speedtest-go/speedtest"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/urfave/cli/v2"
 )
+
+func mapSlice[T any, M any](a []T, f func(T) M) []M {
+	n := make([]M, len(a))
+	for i, e := range a {
+		n[i] = f(e)
+	}
+	return n
+}
 
 func RunSpeedTest() {
 	var speedtestClient = speedtest.New()
@@ -32,6 +42,16 @@ func RunSpeedTest() {
 		Provedor:   user,
 		Resultados: results,
 	}
+
+	t := ptable.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(ptable.Row{"Server", "Cidade", "Distancia", "Latencia", "Jitter", "Velocidade Download", "Velocidade Upload", "Duracao Teste"})
+	t.AppendRows(mapSlice(result.Resultados, func(s speedtest.Server) ptable.Row {
+		downloadSpeed := fmt.Sprintf("%.0f Mbps", s.DLSpeed)
+		uploadSpeed := fmt.Sprintf("%.0f Mbps", s.ULSpeed)
+		return ptable.Row{s.Sponsor, s.Name, s.Distance, s.Latency, s.Jitter, downloadSpeed, uploadSpeed, s.TestDuration.Total}
+	}))
+	t.Render()
 
 	jsonStr, err := json.Marshal(result)
 	if err != nil {

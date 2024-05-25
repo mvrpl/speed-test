@@ -24,3 +24,4 @@ go.sum
 *.pdf
 speeds.db/
 speedtest
+dist/
