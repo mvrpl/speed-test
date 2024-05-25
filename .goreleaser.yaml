@@ -25,6 +25,10 @@ builds:
     goarch:
       - amd64
       - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+    binary: speedtest
 
 archives:
   - format: tar.gz
