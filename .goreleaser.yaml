@@ -42,6 +42,9 @@ archives:
       - goos: windows
         format: zip
 
+release:
+  target_commitish: "{{ .Commit }}"
+
 changelog:
   sort: asc
   filters:
