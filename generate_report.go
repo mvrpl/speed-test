@@ -24,7 +24,8 @@ type Data struct {
 }
 
 func GetData() []Data {
-	db, err := leveldb.OpenFile("speeds.db", nil)
+	home, _ := os.UserHomeDir()
+	db, err := leveldb.OpenFile(home+string(os.PathSeparator)+".speeds.db", nil)
 	if err != nil {
 		panic(err)
 	}

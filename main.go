@@ -21,6 +21,10 @@ func mapSlice[T any, M any](a []T, f func(T) M) []M {
 	return n
 }
 
+const (
+	version = "1.5"
+)
+
 func RunSpeedTest() {
 	var speedtestClient = speedtest.New()
 
@@ -58,7 +62,9 @@ func RunSpeedTest() {
 		panic(err)
 	}
 
-	db, err := leveldb.OpenFile("speeds.db", nil)
+	home, _ := os.UserHomeDir()
+
+	db, err := leveldb.OpenFile(home+string(os.PathSeparator)+".speeds.db", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -76,8 +82,10 @@ func RunSpeedTest() {
 }
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "SpeedTest"
+	app := &cli.App{
+        Name:    "SpeedTest",
+        Version: version,
+    }
 
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{
@@ -87,6 +95,11 @@ func main() {
 		&cli.BoolFlag{
 			Name:  "report",
 			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:    "print-version",
+			Aliases: []string{"V"},
+			Usage:   "print only the version",
 		},
 		&cli.TimestampFlag{
 			Name:   "datetime",
@@ -104,6 +117,8 @@ func main() {
 			RunSpeedTest()
 		} else if c.Bool("report") {
 			GenReport(*c.Timestamp("datetime"))
+		} else if c.Bool("print-version") {
+			fmt.Println(version)
 		} else {
 			panic(errors.New("need one flag"))
 		}
